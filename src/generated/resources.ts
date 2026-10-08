@@ -957,11 +957,323 @@ export class GeneralResource {
   }
 }
 
+export interface ResidentialSubusersListOptions {
+  request?: RequestControls;
+}
+
+export type ResidentialSubusersListResponse = OperationResult<
+  operations["listResidentialSubusers"]
+>;
+
+export interface ResidentialSubusersCreateOptions {
+  idempotencyKey: OperationParameter<
+    operations["createResidentialSubuser"],
+    "header",
+    "Idempotency-Key"
+  >;
+  body: OperationBody<operations["createResidentialSubuser"]>;
+  request?: RequestControls;
+}
+
+export type ResidentialSubusersCreateResponse = OperationResult<
+  operations["createResidentialSubuser"]
+>;
+
+export interface ResidentialSubusersGetOptions {
+  childId: OperationParameter<operations["getResidentialSubuser"], "path", "childId">;
+  request?: RequestControls;
+}
+
+export type ResidentialSubusersGetResponse = OperationResult<operations["getResidentialSubuser"]>;
+
+export interface ResidentialSubusersUpdateOptions {
+  childId: OperationParameter<operations["updateResidentialSubuser"], "path", "childId">;
+  body: OperationBody<operations["updateResidentialSubuser"]>;
+  request?: RequestControls;
+}
+
+export type ResidentialSubusersUpdateResponse = OperationResult<
+  operations["updateResidentialSubuser"]
+>;
+
+export interface ResidentialSubusersDeleteOptions {
+  childId: OperationParameter<operations["deleteResidentialSubuser"], "path", "childId">;
+  idempotencyKey: OperationParameter<
+    operations["deleteResidentialSubuser"],
+    "header",
+    "Idempotency-Key"
+  >;
+  request?: RequestControls;
+}
+
+export type ResidentialSubusersDeleteResponse = OperationResult<
+  operations["deleteResidentialSubuser"]
+>;
+
+export interface ResidentialSubusersGetPackageOptions {
+  childId: OperationParameter<operations["getResidentialSubuserPackage"], "path", "childId">;
+  request?: RequestControls;
+}
+
+export type ResidentialSubusersGetPackageResponse = OperationResult<
+  operations["getResidentialSubuserPackage"]
+>;
+
+export interface ResidentialSubusersGetCredentialsOptions {
+  childId: OperationParameter<operations["getResidentialSubuserCredentials"], "path", "childId">;
+  request?: RequestControls;
+}
+
+export type ResidentialSubusersGetCredentialsResponse = OperationResult<
+  operations["getResidentialSubuserCredentials"]
+>;
+
+export interface ResidentialSubusersChangeTrafficOptions {
+  childId: OperationParameter<operations["changeResidentialSubuserTraffic"], "path", "childId">;
+  action: OperationParameter<operations["changeResidentialSubuserTraffic"], "path", "action">;
+  idempotencyKey: OperationParameter<
+    operations["changeResidentialSubuserTraffic"],
+    "header",
+    "Idempotency-Key"
+  >;
+  body: OperationBody<operations["changeResidentialSubuserTraffic"]>;
+  request?: RequestControls;
+}
+
+export type ResidentialSubusersChangeTrafficResponse = OperationResult<
+  operations["changeResidentialSubuserTraffic"]
+>;
+
+export class ResidentialSubusersResource {
+  readonly #client: ResourceClient;
+
+  constructor(client: ResourceClient) {
+    this.#client = client;
+  }
+
+  /** List residential sub-users */
+  async list(
+    options: ResidentialSubusersListOptions = {},
+  ): Promise<ResidentialSubusersListResponse> {
+    return (await this.listWithResponse(options)).data;
+  }
+
+  /** List residential sub-users; include response metadata. */
+  async listWithResponse(
+    options: ResidentialSubusersListOptions = {},
+  ): Promise<ApiResponse<ResidentialSubusersListResponse>> {
+    return this.#client._callWithResponse<ResidentialSubusersListResponse>(
+      {
+        operationId: "listResidentialSubusers",
+        method: "GET",
+        path: "/proxies/residential/subusers",
+      },
+      {
+        ...(options.request === undefined ? {} : { request: options.request }),
+      },
+    );
+  }
+
+  /** Create a residential sub-user */
+  async create(
+    options: ResidentialSubusersCreateOptions,
+  ): Promise<ResidentialSubusersCreateResponse> {
+    return (await this.createWithResponse(options)).data;
+  }
+
+  /** Create a residential sub-user; include response metadata. */
+  async createWithResponse(
+    options: ResidentialSubusersCreateOptions,
+  ): Promise<ApiResponse<ResidentialSubusersCreateResponse>> {
+    return this.#client._callWithResponse<ResidentialSubusersCreateResponse>(
+      {
+        operationId: "createResidentialSubuser",
+        method: "POST",
+        path: "/proxies/residential/subusers",
+        idempotent: true,
+      },
+      {
+        headers: {
+          "Idempotency-Key": options.idempotencyKey,
+        },
+        body: options.body,
+        ...(options.request === undefined ? {} : { request: options.request }),
+      },
+    );
+  }
+
+  /** Get a residential sub-user */
+  async get(options: ResidentialSubusersGetOptions): Promise<ResidentialSubusersGetResponse> {
+    return (await this.getWithResponse(options)).data;
+  }
+
+  /** Get a residential sub-user; include response metadata. */
+  async getWithResponse(
+    options: ResidentialSubusersGetOptions,
+  ): Promise<ApiResponse<ResidentialSubusersGetResponse>> {
+    return this.#client._callWithResponse<ResidentialSubusersGetResponse>(
+      {
+        operationId: "getResidentialSubuser",
+        method: "GET",
+        path: "/proxies/residential/subusers/{childId}",
+      },
+      {
+        path: {
+          childId: options.childId,
+        },
+        ...(options.request === undefined ? {} : { request: options.request }),
+      },
+    );
+  }
+
+  /** Update sub-user details and access rules */
+  async update(
+    options: ResidentialSubusersUpdateOptions,
+  ): Promise<ResidentialSubusersUpdateResponse> {
+    return (await this.updateWithResponse(options)).data;
+  }
+
+  /** Update sub-user details and access rules; include response metadata. */
+  async updateWithResponse(
+    options: ResidentialSubusersUpdateOptions,
+  ): Promise<ApiResponse<ResidentialSubusersUpdateResponse>> {
+    return this.#client._callWithResponse<ResidentialSubusersUpdateResponse>(
+      {
+        operationId: "updateResidentialSubuser",
+        method: "PATCH",
+        path: "/proxies/residential/subusers/{childId}",
+      },
+      {
+        path: {
+          childId: options.childId,
+        },
+        body: options.body,
+        ...(options.request === undefined ? {} : { request: options.request }),
+      },
+    );
+  }
+
+  /** Delete a residential sub-user */
+  async delete(
+    options: ResidentialSubusersDeleteOptions,
+  ): Promise<ResidentialSubusersDeleteResponse> {
+    return (await this.deleteWithResponse(options)).data;
+  }
+
+  /** Delete a residential sub-user; include response metadata. */
+  async deleteWithResponse(
+    options: ResidentialSubusersDeleteOptions,
+  ): Promise<ApiResponse<ResidentialSubusersDeleteResponse>> {
+    return this.#client._callWithResponse<ResidentialSubusersDeleteResponse>(
+      {
+        operationId: "deleteResidentialSubuser",
+        method: "DELETE",
+        path: "/proxies/residential/subusers/{childId}",
+        idempotent: true,
+      },
+      {
+        path: {
+          childId: options.childId,
+        },
+        headers: {
+          "Idempotency-Key": options.idempotencyKey,
+        },
+        ...(options.request === undefined ? {} : { request: options.request }),
+      },
+    );
+  }
+
+  /** Get package and traffic allocation */
+  async getPackage(
+    options: ResidentialSubusersGetPackageOptions,
+  ): Promise<ResidentialSubusersGetPackageResponse> {
+    return (await this.getPackageWithResponse(options)).data;
+  }
+
+  /** Get package and traffic allocation; include response metadata. */
+  async getPackageWithResponse(
+    options: ResidentialSubusersGetPackageOptions,
+  ): Promise<ApiResponse<ResidentialSubusersGetPackageResponse>> {
+    return this.#client._callWithResponse<ResidentialSubusersGetPackageResponse>(
+      {
+        operationId: "getResidentialSubuserPackage",
+        method: "GET",
+        path: "/proxies/residential/subusers/{childId}/package",
+      },
+      {
+        path: {
+          childId: options.childId,
+        },
+        ...(options.request === undefined ? {} : { request: options.request }),
+      },
+    );
+  }
+
+  /** Retrieve residential proxy credentials */
+  async getCredentials(
+    options: ResidentialSubusersGetCredentialsOptions,
+  ): Promise<ResidentialSubusersGetCredentialsResponse> {
+    return (await this.getCredentialsWithResponse(options)).data;
+  }
+
+  /** Retrieve residential proxy credentials; include response metadata. */
+  async getCredentialsWithResponse(
+    options: ResidentialSubusersGetCredentialsOptions,
+  ): Promise<ApiResponse<ResidentialSubusersGetCredentialsResponse>> {
+    return this.#client._callWithResponse<ResidentialSubusersGetCredentialsResponse>(
+      {
+        operationId: "getResidentialSubuserCredentials",
+        method: "GET",
+        path: "/proxies/residential/subusers/{childId}/credentials",
+      },
+      {
+        path: {
+          childId: options.childId,
+        },
+        ...(options.request === undefined ? {} : { request: options.request }),
+      },
+    );
+  }
+
+  /** Add, subtract, or reset traffic for the configured package */
+  async changeTraffic(
+    options: ResidentialSubusersChangeTrafficOptions,
+  ): Promise<ResidentialSubusersChangeTrafficResponse> {
+    return (await this.changeTrafficWithResponse(options)).data;
+  }
+
+  /** Add, subtract, or reset traffic for the configured package; include response metadata. */
+  async changeTrafficWithResponse(
+    options: ResidentialSubusersChangeTrafficOptions,
+  ): Promise<ApiResponse<ResidentialSubusersChangeTrafficResponse>> {
+    return this.#client._callWithResponse<ResidentialSubusersChangeTrafficResponse>(
+      {
+        operationId: "changeResidentialSubuserTraffic",
+        method: "POST",
+        path: "/proxies/residential/subusers/{childId}/traffic/{action}",
+        idempotent: true,
+      },
+      {
+        path: {
+          childId: options.childId,
+          action: options.action,
+        },
+        headers: {
+          "Idempotency-Key": options.idempotencyKey,
+        },
+        body: options.body,
+        ...(options.request === undefined ? {} : { request: options.request }),
+      },
+    );
+  }
+}
+
 export interface ResourceCollection {
   readonly user: UserResource;
   readonly ports: PortsResource;
   readonly payments: PaymentsResource;
   readonly general: GeneralResource;
+  readonly residentialSubusers: ResidentialSubusersResource;
 }
 
 export function createResourceCollection(client: ResourceClient): ResourceCollection {
@@ -970,5 +1282,6 @@ export function createResourceCollection(client: ResourceClient): ResourceCollec
     ports: new PortsResource(client),
     payments: new PaymentsResource(client),
     general: new GeneralResource(client),
+    residentialSubusers: new ResidentialSubusersResource(client),
   };
 }

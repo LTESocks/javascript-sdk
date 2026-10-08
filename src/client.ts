@@ -42,6 +42,7 @@ export class LTESocksClient implements ResourceClient, ResourceCollection {
   readonly ports: ResourceCollection["ports"];
   readonly payments: ResourceCollection["payments"];
   readonly general: ResourceCollection["general"];
+  readonly residentialSubusers: ResourceCollection["residentialSubusers"];
 
   readonly baseUrl: string;
   readonly language: string;
@@ -90,6 +91,7 @@ export class LTESocksClient implements ResourceClient, ResourceCollection {
     this.ports = resources.ports;
     this.payments = resources.payments;
     this.general = resources.general;
+    this.residentialSubusers = resources.residentialSubusers;
   }
 
   static withBearerToken(bearerToken: string, options: ClientCommonOptions = {}): LTESocksClient {

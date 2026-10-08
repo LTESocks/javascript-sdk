@@ -7,7 +7,7 @@ import { createResourceCollection } from "../src/generated/resources.js";
 const root = resolve(import.meta.dirname, "..");
 
 describe("generated SDK contract", () => {
-  it("covers all 28 operations, 13 schemas and 4 resources", async () => {
+  it("covers all 36 operations, 20 schemas and 5 resources", async () => {
     const schema = parse(await readFile(resolve(root, "openapi/openapi.yaml"), "utf8")) as {
       paths: Record<string, Record<string, { operationId?: string; tags?: string[] }>>;
       components: { schemas: Record<string, unknown> };
@@ -36,17 +36,17 @@ describe("generated SDK contract", () => {
       },
     };
 
-    expect(new Set(operationIds).size).toBe(28);
-    expect(Object.keys(schema.components.schemas)).toHaveLength(13);
-    expect(Object.keys(configuration.operations)).toHaveLength(28);
-    expect(Object.keys(configuration.resources)).toHaveLength(4);
+    expect(new Set(operationIds).size).toBe(36);
+    expect(Object.keys(schema.components.schemas)).toHaveLength(20);
+    expect(Object.keys(configuration.operations)).toHaveLength(36);
+    expect(Object.keys(configuration.resources)).toHaveLength(5);
     const resources = createResourceCollection(client) as unknown as Record<
       string,
       Record<string, unknown>
     >;
     const camelCase = (value: string) =>
       value.replace(/_([a-z])/gu, (_, letter) => letter.toUpperCase());
-    expect(Object.keys(resources)).toHaveLength(4);
+    expect(Object.keys(resources)).toHaveLength(5);
     expect(new Set(operationIds)).toEqual(new Set(Object.keys(configuration.operations)));
     for (const pathItem of Object.values(schema.paths)) {
       for (const operation of Object.values(pathItem)) {

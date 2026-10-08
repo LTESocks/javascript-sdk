@@ -5,7 +5,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](tsconfig.json)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-The official TypeScript client for the [LTESocks Public API v2](https://docs.ltesocks.io/). It provides typed models and resource methods for account preferences, mobile proxy ports, payments, plans, servers, and network signatures.
+The official TypeScript client for the [LTESocks Public API v2](https://docs.ltesocks.io/). It provides typed models and resource methods for account preferences, mobile proxy ports, residential sub-users, payments, plans, servers, and network signatures.
 
 > Package publication has not started yet. The repository is production-ready, but `@ltesocks/sdk` is intentionally not available on npm until the first release is approved.
 
@@ -59,12 +59,22 @@ const client = new LTESocksClient({
 | `client.ports` | List, filter, order, update, reset, delete, and download VPN archives |
 | `client.payments` | List/filter payment history and access reserved payment operations |
 | `client.general` | List plans, servers, and signatures |
+| `client.residentialSubusers` | Manage users, package traffic, and proxy credentials under a reseller account |
 
 Every operation has a `method()` returning data and a `methodWithResponse()` variant returning status, headers, ETag, and `idempotencyReplayed` metadata. See the generated [resource reference](src/generated/resources.ts) and the [API reference](https://docs.ltesocks.io/api-reference/).
 
+Residential sub-user mutations require a stable key supplied by your application:
+
+```ts
+const created = await client.residentialSubusers.create({
+  idempotencyKey: crypto.randomUUID(),
+  body: { login: "customer_01", traffic_bytes: 1_073_741_824 },
+});
+```
+
 ## Idempotency and retries
 
-For the ten mutations that accept `Idempotency-Key`, the SDK creates a UUID automatically. The same key is reused for at most three attempts when the connection fails before any HTTP response is received. HTTP errors are never retried automatically.
+For mutations with an optional `Idempotency-Key`, the SDK creates a UUID automatically. The same key is reused for at most three attempts when the connection fails before any HTTP response is received. HTTP errors are never retried automatically.
 
 ```ts
 const result = await client.ports.resetWithResponse({ id: "10000" });

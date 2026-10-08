@@ -27,7 +27,7 @@ const operations = Object.values(document.paths ?? {}).reduce(
   0,
 );
 const schemas = Object.keys(document.components?.schemas ?? {}).length;
-if (operations !== 28 || schemas !== 13) {
+if (operations !== 36 || schemas !== 20) {
   throw new Error(`Unexpected contract size: ${operations} operations and ${schemas} schemas.`);
 }
 

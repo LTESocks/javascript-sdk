@@ -420,6 +420,109 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/proxies/residential/subusers": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List residential sub-users
+     * @description Requires a Master account linked to a ProxyRequest reseller.
+     */
+    get: operations["listResidentialSubusers"];
+    put?: never;
+    /** Create a residential sub-user */
+    post: operations["createResidentialSubuser"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/proxies/residential/subusers/{childId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        childId: components["parameters"]["ResidentialChildId"];
+      };
+      cookie?: never;
+    };
+    /** Get a residential sub-user */
+    get: operations["getResidentialSubuser"];
+    put?: never;
+    post?: never;
+    /** Delete a residential sub-user */
+    delete: operations["deleteResidentialSubuser"];
+    options?: never;
+    head?: never;
+    /** Update sub-user details and access rules */
+    patch: operations["updateResidentialSubuser"];
+    trace?: never;
+  };
+  "/proxies/residential/subusers/{childId}/credentials": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        childId: components["parameters"]["ResidentialChildId"];
+      };
+      cookie?: never;
+    };
+    /**
+     * Retrieve residential proxy credentials
+     * @description Returns the proxy password only on this explicit request.
+     */
+    get: operations["getResidentialSubuserCredentials"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/proxies/residential/subusers/{childId}/package": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        childId: components["parameters"]["ResidentialChildId"];
+      };
+      cookie?: never;
+    };
+    /** Get package and traffic allocation */
+    get: operations["getResidentialSubuserPackage"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/proxies/residential/subusers/{childId}/traffic/{action}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        action: "add" | "subtract" | "reset";
+        childId: components["parameters"]["ResidentialChildId"];
+      };
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Add, subtract, or reset traffic for the configured package */
+    post: operations["changeResidentialSubuserTraffic"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/servers": {
     parameters: {
       query?: never;
@@ -527,6 +630,17 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    CreateResidentialSubuser: {
+      /** Format: email */
+      email?: string | null;
+      first_name?: string | null;
+      last_name?: string | null;
+      login: string;
+      /** Format: uuid */
+      package_id?: string | null;
+      /** Format: int64 */
+      traffic_bytes: number;
+    };
     DevelopmentError: {
       /**
        * @description Error text representation
@@ -733,11 +847,75 @@ export interface components {
        */
       trafficRemains?: number;
     };
+    ResidentialCredentialsResponse: {
+      code: number;
+      data: {
+        password?: string;
+        username?: string;
+      };
+      success: boolean;
+    };
+    ResidentialPackageResponse: {
+      code: number;
+      data: {
+        /** Format: uuid */
+        id?: string;
+        /** Format: uuid */
+        package_id?: string;
+        /** Format: int64 */
+        remaining_bytes?: number;
+        /** Format: int64 */
+        traffic_bytes?: number | null;
+        /** Format: int64 */
+        used_bytes?: number | null;
+      };
+      success: boolean;
+    };
+    ResidentialSubuser: {
+      allowed_ips?: string[];
+      blocked_domains?: string[];
+      /** Format: date-time */
+      created_at?: string | null;
+      email?: string | null;
+      first_name?: string | null;
+      /** Format: uuid */
+      id: string;
+      last_name?: string | null;
+      login: string;
+      /** Format: uuid */
+      package_id: string;
+      /** Format: int64 */
+      remaining_bytes: number;
+      status: string;
+      /** Format: int64 */
+      traffic_bytes?: number | null;
+      /** Format: int64 */
+      used_bytes?: number | null;
+    };
+    ResidentialSubuserListResponse: {
+      code: number;
+      data: components["schemas"]["ResidentialSubuser"][];
+      success: boolean;
+    };
+    ResidentialSubuserResponse: {
+      code: number;
+      data: components["schemas"]["ResidentialSubuser"];
+      success: boolean;
+    };
     Server: {
       /** @example NL */
       countryCode?: string;
       /** @example vpn1.ltesocks.io */
       host?: string;
+    };
+    UpdateResidentialSubuser: {
+      allowed_ips?: string[];
+      blocked_domains?: string[];
+      connection_limit?: number;
+      /** Format: email */
+      email?: string | null;
+      first_name?: string | null;
+      last_name?: string | null;
     };
     User: {
       /**
@@ -795,6 +973,15 @@ export interface components {
     };
   };
   responses: {
+    /** @description The child does not belong to this reseller. */
+    NotFound: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        "application/json": components["schemas"]["Error"];
+      };
+    };
     /** @description The configured request limit has been exceeded. */
     RateLimited: {
       headers: {
@@ -813,10 +1000,22 @@ export interface components {
         "application/json": components["schemas"]["Error"];
       };
     };
+    /** @description Invalid request or package state. */
+    ValidationFailed: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        "application/json": components["schemas"]["Error"];
+      };
+    };
   };
   parameters: {
     /** @description Optional UUID that identifies one mutation request. Reuse it only when retrying the same request. */
     IdempotencyKey: string;
+    /** @description Stable request key; reuse only for a retry of the same operation. */
+    RequiredIdempotencyKey: string;
+    ResidentialChildId: string;
   };
   requestBodies: {
     /** @description Pagination parameters */
@@ -1747,6 +1946,225 @@ export interface operations {
           "application/json": components["schemas"]["Error"];
         };
       };
+    };
+  };
+  listResidentialSubusers: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Sub-users owned by the authenticated reseller. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ResidentialSubuserListResponse"];
+        };
+      };
+      401: components["responses"]["Unauthorized"];
+      403: components["responses"]["Unauthorized"];
+      429: components["responses"]["RateLimited"];
+    };
+  };
+  createResidentialSubuser: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Stable request key; reuse only for a retry of the same operation. */
+        "Idempotency-Key": components["parameters"]["RequiredIdempotencyKey"];
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateResidentialSubuser"];
+      };
+    };
+    responses: {
+      /** @description Created sub-user. */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ResidentialSubuserResponse"];
+        };
+      };
+      401: components["responses"]["Unauthorized"];
+      422: components["responses"]["ValidationFailed"];
+      429: components["responses"]["RateLimited"];
+    };
+  };
+  getResidentialSubuser: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        childId: components["parameters"]["ResidentialChildId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Sub-user owned by the authenticated reseller. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ResidentialSubuserResponse"];
+        };
+      };
+      401: components["responses"]["Unauthorized"];
+      404: components["responses"]["NotFound"];
+      429: components["responses"]["RateLimited"];
+    };
+  };
+  deleteResidentialSubuser: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Stable request key; reuse only for a retry of the same operation. */
+        "Idempotency-Key": components["parameters"]["RequiredIdempotencyKey"];
+      };
+      path: {
+        childId: components["parameters"]["ResidentialChildId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Deleted. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components["responses"]["Unauthorized"];
+      429: components["responses"]["RateLimited"];
+    };
+  };
+  updateResidentialSubuser: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        childId: components["parameters"]["ResidentialChildId"];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateResidentialSubuser"];
+      };
+    };
+    responses: {
+      /** @description Updated sub-user. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ResidentialSubuserResponse"];
+        };
+      };
+      401: components["responses"]["Unauthorized"];
+      422: components["responses"]["ValidationFailed"];
+      429: components["responses"]["RateLimited"];
+    };
+  };
+  getResidentialSubuserCredentials: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        childId: components["parameters"]["ResidentialChildId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Proxy username and password. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ResidentialCredentialsResponse"];
+        };
+      };
+      401: components["responses"]["Unauthorized"];
+      429: components["responses"]["RateLimited"];
+    };
+  };
+  getResidentialSubuserPackage: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        childId: components["parameters"]["ResidentialChildId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Current configured residential package and usage. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ResidentialPackageResponse"];
+        };
+      };
+      401: components["responses"]["Unauthorized"];
+      429: components["responses"]["RateLimited"];
+    };
+  };
+  changeResidentialSubuserTraffic: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Stable request key; reuse only for a retry of the same operation. */
+        "Idempotency-Key": components["parameters"]["RequiredIdempotencyKey"];
+      };
+      path: {
+        action: "add" | "subtract" | "reset";
+        childId: components["parameters"]["ResidentialChildId"];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          /**
+           * Format: int64
+           * @description Required for add and subtract; omitted for reset.
+           */
+          traffic_bytes?: number;
+        };
+      };
+    };
+    responses: {
+      /** @description Updated package allocation. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ResidentialSubuserResponse"];
+        };
+      };
+      401: components["responses"]["Unauthorized"];
+      422: components["responses"]["ValidationFailed"];
+      429: components["responses"]["RateLimited"];
     };
   };
   listServers: {
